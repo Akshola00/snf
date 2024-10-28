@@ -811,12 +811,12 @@ fn validate_init(temp: &TempDir, validate_snforge_std: bool) {
 fn validate_gitignore(temp: &TempDir) {
     let gitignore_path = temp.join("test_name/.gitignore");
     let gitignore_content = fs::read_to_string(gitignore_path).unwrap();
-    
+
     let expected_entries = vec![
         ".snfoundry_cache/",
         "snfoundry_trace/",
         ".snfoundry_versioned_programs/",
-        "coverage/"
+        "coverage/",
     ];
 
     for entry in expected_entries {
