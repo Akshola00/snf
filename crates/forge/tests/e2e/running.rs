@@ -789,7 +789,7 @@ fn validate_init(temp: &TempDir, validate_snforge_std: bool) {
         .assert()
         .success();
 
-    validate_gitignore(temp);
+    validate_gitignore(&temp, "test_name/");
 
     let expected = indoc!(
         r"
@@ -808,24 +808,22 @@ fn validate_init(temp: &TempDir, validate_snforge_std: bool) {
     assert_stdout_contains(output, expected);
 }
 
-fn validate_gitignore(temp: &TempDir) {
-    let gitignore_path = temp.join("test_name/.gitignore");
+fn validate_gitignore(temp: &TempDir, path: &str) {
+    let gitignore_path = temp.join(path).join(".gitignore");
     let gitignore_content = fs::read_to_string(gitignore_path).unwrap();
 
-    let expected_entries = vec![
-        ".snfoundry_cache/",
-        "snfoundry_trace/",
-        ".snfoundry_versioned_programs/",
-        "coverage/",
-    ];
+    let expected_gitignore = indoc! {"
+        target
+        .snfoundry_cache/
+        snfoundry_trace/
+        snfoundry_versioned_programs/
+        coverage/
+    "};
 
-    for entry in expected_entries {
-        assert!(
-            gitignore_content.contains(entry),
-            "Expected .gitignore to contain '{}', but it didn't",
-            entry
-        );
-    }
+    assert_eq!(
+        gitignore_content, expected_gitignore,
+        "Gitignore content doesn't match expected content"
+    );
 }
 
 #[test]
