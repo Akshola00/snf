@@ -789,7 +789,7 @@ fn validate_init(temp: &TempDir, validate_snforge_std: bool) {
         .assert()
         .success();
 
-    validate_gitignore(&temp, "test_name/");
+    validate_gitignore(&temp);
 
     let expected = indoc!(
         r"
@@ -808,8 +808,8 @@ fn validate_init(temp: &TempDir, validate_snforge_std: bool) {
     assert_stdout_contains(output, expected);
 }
 
-fn validate_gitignore(temp: &TempDir, path: &str) {
-    let gitignore_path = temp.join(path).join(".gitignore");
+fn validate_gitignore(path: &Path) {
+    let gitignore_path = path.join(".gitignore");
     let gitignore_content = fs::read_to_string(gitignore_path).unwrap();
 
     let expected_gitignore = indoc! {"
