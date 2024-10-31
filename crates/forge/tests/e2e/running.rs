@@ -726,7 +726,21 @@ pub fn append_to_path_var(path: &Path) -> OsString {
 
 fn validate_init(temp: &TempDir, validate_snforge_std: bool) {
     let manifest_path = temp.join("test_name/Scarb.toml");
+    let gitignore_path = temp.join("test_name/.gitignore");
+
     let scarb_toml = fs::read_to_string(manifest_path.clone()).unwrap();
+    let gitignore_content = fs::read_to_string(gitignore_path.clone()).unwrap();
+
+    let expected_gitignore = formatdoc!(
+        r#"
+        .snfoundry_cache/
+        snfoundry_trace/ 
+        .snfoundry_versioned_programs/
+        coverage/
+        "#,
+    )
+    .trim_end()
+    .to_string();
 
     let snforge_std_assert = if validate_snforge_std {
         "\nsnforge_std = { git = \"https://github.com/foundry-rs/starknet-foundry\", tag = \"v[..]\" }"
@@ -762,6 +776,8 @@ fn validate_init(temp: &TempDir, validate_snforge_std: bool) {
 
     assert_matches(&expected, &scarb_toml);
 
+    assert_matches(&expected_gitignore, &gitignore_content);
+
     let mut scarb_toml = DocumentMut::from_str(&scarb_toml).unwrap();
 
     let dependencies = scarb_toml
@@ -789,8 +805,6 @@ fn validate_init(temp: &TempDir, validate_snforge_std: bool) {
         .assert()
         .success();
 
-    validate_gitignore(&temp);
-
     let expected = indoc!(
         r"
         [..]Compiling test_name v0.1.0[..]
@@ -806,25 +820,6 @@ fn validate_init(temp: &TempDir, validate_snforge_std: bool) {
     );
 
     assert_stdout_contains(output, expected);
-}
-
-fn validate_gitignore(path: &Path) {
-    let gitignore_path = path.join(".gitignore");
-    let gitignore_content = fs::read_to_string(gitignore_path).unwrap();
-
-    let expected_gitignore = indoc!(
-        r"
-        target
-        .snfoundry_cache/
-        snfoundry_trace/ 
-        .snfoundry_versioned_programs/
-        coverage/
-        "
-    );
-    assert_eq!(
-        gitignore_content, expected_gitignore,
-        "Gitignore content doesn't match expected content"
-    );
 }
 
 #[test]
