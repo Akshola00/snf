@@ -812,14 +812,15 @@ fn validate_gitignore(path: &Path) {
     let gitignore_path = path.join(".gitignore");
     let gitignore_content = fs::read_to_string(gitignore_path).unwrap();
 
-    let expected_gitignore = indoc! {"
+    let expected_gitignore = indoc!(
+        r"
         target
         .snfoundry_cache/
-        snfoundry_trace/
-        snfoundry_versioned_programs/
+        snfoundry_trace/ 
+        .snfoundry_versioned_programs/
         coverage/
-    "};
-
+        "
+    );
     assert_eq!(
         gitignore_content, expected_gitignore,
         "Gitignore content doesn't match expected content"
